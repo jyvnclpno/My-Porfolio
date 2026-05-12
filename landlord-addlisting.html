@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Properties — HomeSync</title>
+  <style>
+    /* ── navigation and footer.css ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #3d4a56; color: white; min-height: 100vh; display: flex; flex-direction: column; }
+    nav { background-color: #2e3840; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .logo { font-size: 22px; font-weight: bold; color: white; text-decoration: none; }
+    .logo span { color: #22c55e; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { color: white; text-decoration: none; font-size: 15px; }
+    .nav-links a:hover { color: #22c55e; }
+    .btn-login { background: transparent; color: white; border: 2px solid white; padding: 7px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .btn-login:hover { background: rgba(255,255,255,0.1); }
+    .btn-signup { background-color: #22c55e; color: white; border: none; padding: 9px 22px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+    .btn-signup:hover { background-color: #16a34a; }
+    footer { background-color: #2e3840; padding: 24px; text-align: center; margin-top: auto; }
+    .footer-links { margin-bottom: 10px; }
+    .footer-links a { color: #94a3b8; text-decoration: none; font-size: 13px; margin: 0 14px; }
+    footer p { color: #64748b; font-size: 12px; }
+ 
+    /* ── dashboards.css ── */
+    .dashboard { display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background-color: #2e3840; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; }
+    .sb-logo { padding: 18px; font-size: 18px; font-weight: bold; color: white; text-decoration: none; display: block; border-bottom: 1px solid #3d4a56; }
+    .sb-logo span { color: #22c55e; }
+    .sb-section { padding: 12px 18px 4px; font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em; }
+    .sb-item { display: flex; align-items: center; gap: 9px; padding: 10px 18px; font-size: 13px; color: #94a3b8; cursor: pointer; border-left: 3px solid transparent; text-decoration: none; }
+    .sb-item:hover { background-color: #3d4a56; color: white; }
+    .sb-item.active { background-color: rgba(34,197,94,0.1); color: #22c55e; font-weight: bold; border-left-color: #22c55e; }
+    .sb-badge { background-color: #22c55e; color: white; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: auto; }
+    .sb-badge.red { background-color: #dc2626; }
+    .sb-foot { padding: 14px 18px; border-top: 1px solid #3d4a56; display: flex; align-items: center; gap: 10px; margin-top: auto; cursor: pointer; text-decoration: none; }
+    .sb-foot:hover { background-color: #3d4a56; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #22c55e; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; flex-shrink: 0; }
+    .av-name { font-size: 12px; font-weight: bold; color: white; }
+    .av-role { font-size: 10px; color: #64748b; }
+    .main-content { flex: 1; background-color: #3d4a56; overflow-y: auto; }
+    .topbar { background-color: #2e3840; border-bottom: 1px solid #3d4a56; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5; }
+    .topbar h1 { font-size: 18px; color: white; }
+    .topbar p { font-size: 11px; color: #64748b; }
+    .topbar-r { display: flex; align-items: center; gap: 10px; }
+    .icon-btn { width: 34px; height: 34px; border: 1px solid #4a5568; background-color: #3d4a56; border-radius: 8px; cursor: pointer; font-size: 16px; color: white; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+    .icon-btn:hover { background-color: #4a5568; }
+    .db { padding: 20px; }
+ 
+    /* ── dashboard_features.css ── */
+    .stat-row { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+    .sc { background-color: #2e3840; border-radius: 10px; padding: 18px; flex: 1; min-width: 150px; }
+    .sc .sl { font-size: 11px; color: #64748b; margin-bottom: 5px; }
+    .sc .sv { font-size: 24px; font-weight: bold; color: white; }
+    .sc .ss { font-size: 11px; color: #22c55e; margin-top: 3px; }
+    .sc .ss.warn { color: #f59e0b; }
+    .sc .ss.red { color: #f87171; }
+    .cc { background-color: #2e3840; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+    .cc h3 { font-size: 15px; color: white; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .cc h3 a { font-size: 12px; color: #22c55e; cursor: pointer; font-weight: normal; text-decoration: none; }
+    .qa { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .qa-btn { background-color: #2e3840; border: 1px solid #4a5568; border-radius: 8px; padding: 9px 14px; font-size: 12px; cursor: pointer; color: #94a3b8; font-family: Arial, sans-serif; }
+    .qa-btn:hover { border-color: #22c55e; color: #22c55e; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 10px; background-color: #3d4a56; border-bottom: 1px solid #4a5568; color: #64748b; font-size: 11px; }
+    td { padding: 9px 10px; border-bottom: 1px solid #3d4a56; color: #94a3b8; }
+    tr:last-child td { border-bottom: none; }
+    .clickable-row { cursor: pointer; }
+    .clickable-row:hover td { background-color: #3d4a56; color: white; }
+    .badge { padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+    .b-green { background-color: rgba(34,197,94,0.15); color: #22c55e; }
+    .b-red { background-color: rgba(239,68,68,0.15); color: #f87171; }
+    .b-yellow { background-color: rgba(245,158,11,0.15); color: #fbbf24; }
+    .b-gray { background-color: rgba(100,116,139,0.2); color: #94a3b8; }
+    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; }
+    .alert-green { background-color: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; }
+    .alert-yellow { background-color: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
+    .toggle { width: 38px; height: 20px; background-color: #4a5568; border-radius: 10px; position: relative; cursor: pointer; transition: background-color 0.2s; flex-shrink: 0; }
+    .toggle.on { background-color: #22c55e; }
+    .t-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background-color: white; transition: transform 0.2s; }
+    .toggle.on .t-knob { transform: translateX(18px); }
+    .drow { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #3d4a56; font-size: 13px; }
+    .drow:last-child { border-bottom: none; }
+    .drow .dl { color: #64748b; }
+    .drow .dv { font-weight: bold; color: white; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background-color: #2e3840; border-radius: 12px; padding: 28px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+    .modal-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .modal-hd h3 { font-size: 18px; color: white; }
+    .modal-close { background-color: #3d4a56; border: none; border-radius: 6px; width: 28px; height: 28px; font-size: 14px; cursor: pointer; color: white; font-family: Arial, sans-serif; }
+    .modal-close:hover { background-color: #4a5568; }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid #3d4a56; }
+    #toast-wrap { position: fixed; bottom: 18px; right: 18px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background-color: #2e3840; color: white; padding: 11px 16px; border-radius: 8px; font-size: 13px; border: 1px solid #4a5568; box-shadow: 0 4px 16px rgba(0,0,0,0.4); animation: toastIn 0.25s ease; min-width: 210px; }
+    .toast.success { background-color: #22c55e; border-color: #22c55e; }
+    @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+ 
+    /* ── buttons.css ── */
+    .btn-green { background-color: #22c55e; color: white; border: none; padding: 12px 28px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: Arial, sans-serif; }
+    .btn-green:hover { background-color: #16a34a; }
+    .btn-green-full { width: 100%; padding: 13px; background-color: #22c55e; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 14px; font-family: Arial, sans-serif; }
+    .btn-green-full:hover { background-color: #16a34a; }
+    .btn-outline-green { background: transparent; color: #22c55e; border: 2px solid #22c55e; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: Arial, sans-serif; }
+    .btn-outline-green:hover { background: rgba(34,197,94,0.1); }
+    .btn-red { background-color: rgba(220,38,38,0.15); color: #f87171; border: 1px solid #f87171; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: Arial, sans-serif; }
+    .btn-red:hover { background-color: rgba(220,38,38,0.25); }
+    .btn-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+ 
+    /* ── forms.css ── */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: bold; color: white; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 16px; background-color: #f1f5f9; border: none; border-radius: 30px; font-size: 13px; outline: none; font-family: Arial, sans-serif; color: #333; }
+    .form-group select { border-radius: 10px; cursor: pointer; }
+    .form-group textarea { border-radius: 12px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { box-shadow: 0 0 0 3px rgba(34,197,94,0.4); }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+ 
+    /* ── Page-specific layout additions ── */
+    .step-dots { display: flex; gap: 6px; margin-bottom: 18px; }
+    .step-dot { width: 26px; height: 5px; border-radius: 3px; background-color: #4a5568; transition: background-color .2s, width .15s; }
+    .step-dot.done { background-color: #22c55e; }
+    .step-dot.active { background-color: #22c55e; width: 40px; }
+ 
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+    .step-lbl { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+ 
+    .opt-grid { display: grid; gap: 10px; margin-bottom: 14px; }
+    .opt-grid-2 { grid-template-columns: 1fr 1fr; }
+    .opt-grid-3 { grid-template-columns: repeat(3,1fr); }
+    .opt-grid-4 { grid-template-columns: repeat(4,1fr); }
+    .opt-card { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 8px; padding: 12px 10px; text-align: center; cursor: pointer; transition: border-color .15s, background-color .15s; }
+    .opt-card:hover { border-color: #22c55e; }
+    .opt-card.selected { border-color: #22c55e; background-color: rgba(34,197,94,0.1); }
+    .opt-card .oc-icon { font-size: 20px; margin-bottom: 5px; }
+    .opt-card .oc-lbl { font-size: 12px; font-weight: bold; color: white; }
+    .opt-card.selected .oc-lbl { color: #22c55e; }
+    .opt-card .oc-sub { font-size: 10px; color: #64748b; margin-top: 2px; }
+ 
+    .bed-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .bed-row { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+    .bed-num { font-size: 12px; font-weight: bold; color: #22c55e; width: 18px; flex-shrink: 0; }
+    .bed-row select { flex: 1; padding: 7px 10px; background-color: #f1f5f9; border: none; border-radius: 8px; font-size: 12px; color: #333; outline: none; cursor: pointer; font-family: Arial, sans-serif; border-radius: 8px; }
+    .bed-row .status-sel { width: 100px; flex: none; }
+    .del-bed-btn { background: none; border: none; color: #f87171; cursor: pointer; font-size: 15px; padding: 0 2px; }
+    .add-bed-btn { width: 100%; padding: 9px; background-color: #3d4a56; border: 1.5px dashed #4a5568; border-radius: 8px; font-size: 12px; color: #94a3b8; cursor: pointer; font-family: Arial, sans-serif; margin-bottom: 14px; }
+    .add-bed-btn:hover { border-color: #22c55e; color: #22c55e; }
+ 
+    .amenity-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+    .am-item { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 8px; padding: 9px 10px; display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; color: #94a3b8; user-select: none; transition: border-color .15s; }
+    .am-item.on { border-color: #22c55e; color: white; background-color: rgba(34,197,94,0.08); }
+ 
+    .addon-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .addon-row { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #94a3b8; cursor: pointer; user-select: none; transition: border-color .15s; }
+    .addon-row.on { border-color: #22c55e; color: white; }
+    .addon-price { margin-left: auto; color: #22c55e; font-weight: bold; font-size: 11px; }
+ 
+    .disc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .disc-row { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+    .disc-icon { font-size: 18px; flex-shrink: 0; }
+    .disc-info { flex: 1; }
+    .disc-name { font-size: 13px; font-weight: bold; color: white; }
+    .disc-req { font-size: 11px; color: #64748b; }
+    .disc-pct { font-size: 13px; font-weight: bold; color: #22c55e; width: 34px; text-align: right; flex-shrink: 0; }
+ 
+    .policy-box { background-color: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+    .policy-box .pb-title { font-size: 13px; font-weight: bold; color: #fbbf24; margin-bottom: 10px; }
+    .policy-box ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .policy-box ul li { font-size: 12px; color: #94a3b8; display: flex; gap: 6px; }
+    .policy-box ul li::before { content: '•'; color: #fbbf24; flex-shrink: 0; }
+ 
+    .summary-hd { background-color: #3d4a56; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #94a3b8; margin-bottom: 14px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .summary-dot { color: #4a5568; }
+ 
+    .confirm-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #4a5568; border-radius: 8px; background-color: #3d4a56; cursor: pointer; margin-bottom: 4px; }
+    .confirm-row.checked { border-color: #22c55e; background-color: rgba(34,197,94,0.08); }
+    .confirm-row input[type="checkbox"] { width: 15px; height: 15px; accent-color: #22c55e; cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+    .confirm-row span { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+    .confirm-row.checked span { color: white; }
+ 
+    .success-screen { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 0 16px; gap: 12px; }
+    .success-ico { width: 56px; height: 56px; background-color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+    .success-screen h3 { font-size: 20px; font-weight: bold; color: #22c55e; }
+    .success-screen > p { font-size: 13px; color: #94a3b8; line-height: 1.6; max-width: 360px; }
+ 
+    .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .room-card { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 10px; padding: 14px; position: relative; transition: border-color .15s; }
+    .room-card:hover { border-color: #22c55e; }
+    .rc-name { font-size: 14px; font-weight: bold; color: white; }
+    .rc-loc { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .rc-price { font-size: 18px; font-weight: bold; color: #22c55e; }
+    .rc-unit { font-size: 10px; color: #64748b; }
+    .rc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin: 7px 0; }
+    .rc-tag { font-size: 10px; padding: 2px 7px; border-radius: 5px; background-color: #2e3840; color: #94a3b8; border: 1px solid #4a5568; }
+ 
+    .gbadge { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 5px; }
+    .gb-boys { background-color: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+    .gb-girls { background-color: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid #ec4899; }
+    .gb-mixed { background-color: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid #8b5cf6; }
+ 
+    .add-card { background-color: #3d4a56; border: 2px dashed #4a5568; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; cursor: pointer; gap: 7px; transition: border-color .15s; }
+    .add-card:hover { border-color: #22c55e; }
+    .add-card .ac-icon { font-size: 26px; }
+    .add-card .ac-lbl { font-size: 13px; color: #94a3b8; }
+    .add-card:hover .ac-lbl { color: #22c55e; }
+ 
+    .price-preview { background-color: #3d4a56; border: 1px solid #4a5568; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+    .pp-lbl { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .pp-main { font-size: 26px; font-weight: bold; color: #22c55e; }
+    .pp-sub { font-size: 11px; color: #64748b; margin-top: 3px; }
+  </style>
+</head>
+<body>
+ 
+<div class="dashboard">
+ 
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <a class="sb-logo" href="#">Home<span>Sync</span></a>
+    <div class="sb-section">Main</div>
+    <a class="sb-item" href="#">📊 Overview</a>
+    <a class="sb-item active" href="#">🏠 Properties</a>
+    <a class="sb-item" href="#">👥 Tenants</a>
+    <a class="sb-item" href="#">🔧 Tickets <span class="sb-badge red">3</span></a>
+    <div class="sb-section">Finance</div>
+    <a class="sb-item" href="#">💳 Rent &amp; Payments</a>
+    <a class="sb-item" href="#">📈 Reports</a>
+    <div class="sb-section">Manage</div>
+    <a class="sb-item" href="#">📁 Documents</a>
+    <a class="sb-item" href="#">💬 Messages <span class="sb-badge">4</span></a>
+    <a class="sb-item" href="#">🔔 Notifications <span class="sb-badge">5</span></a>
+    <a class="sb-item" href="#">❓ Support</a>
+    <a class="sb-item" href="#">⚙️ Settings</a>
+    <a class="sb-item" href="#" style="color:#f87171">🚪 Logout</a>
+    <a class="sb-foot" href="#">
+      <div class="avatar">JD</div>
+      <div><div class="av-name">Juan dela Cruz</div><div class="av-role">Landlord · Pro</div></div>
+    </a>
+  </div>
+ 
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="topbar">
+      <div><h1>Properties</h1><p>Manage your listings and room availability</p></div>
+      <div class="topbar-r">
+        <a href="#" class="icon-btn">🔔</a>
+        <div class="avatar">JD</div>
+      </div>
+    </div>
+ 
+    <div class="db">
+ 
+      <!-- STAT CARDS -->
+      <div class="stat-row">
+        <div class="sc"><div class="sl">Total Listings</div><div class="sv">6</div></div>
+        <div class="sc"><div class="sl">Available Now</div><div class="sv">4</div><div class="ss">Accepting tenants</div></div>
+        <div class="sc"><div class="sl">Fully Booked</div><div class="sv">2</div><div class="ss warn">0 vacancies</div></div>
+        <div class="sc"><div class="sl">Pending Approval</div><div class="sv">3</div><div class="ss warn">Booking requests</div></div>
+      </div>
+ 
+      <div class="alert alert-yellow">⚠️ You have <strong>3 pending booking requests</strong> awaiting your approval.</div>
+ 
+      <!-- ROOM LISTINGS -->
+      <div class="cc">
+        <h3>
+          Room Listings
+          <button class="btn-outline-green" onclick="openModal()" style="font-size:12px;padding:7px 14px">➕ Add New Listing</button>
+        </h3>
+ 
+        <div class="room-grid">
+ 
+          <div class="room-card">
+            <span class="gbadge gb-boys">Boys Only</span>
+            <div style="height:18px"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div class="rc-name">Room 2B</div><div class="rc-loc">Sunset Apartments, QC</div></div>
+              <div style="text-align:right"><div class="rc-price">₱2,800</div><div class="rc-unit">/bed·mo</div></div>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag">Single &amp; Bunk</span>
+              <span class="rc-tag">Shared Room</span>
+              <span class="rc-tag">Dep: 2 months</span>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag" style="color:#a78bfa;border-color:#8b5cf6">👨‍🎓 Student 10%</span>
+              <span class="rc-tag" style="color:#60a5fa;border-color:#3b82f6">♿ PWD 20%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;font-size:11px">
+              <span style="color:#22c55e;font-weight:bold">● 3 beds available</span>
+              <span style="color:#f59e0b">1 Hold pending</span>
+            </div>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn-outline-green" style="font-size:11px;padding:5px 11px" onclick="openModal('edit')">✏️ Edit</button>
+              <button class="qa-btn" style="padding:5px 11px">👁 Preview</button>
+              <button class="qa-btn" style="padding:5px 11px;margin-left:auto">📋 Requests (2)</button>
+            </div>
+          </div>
+ 
+          <div class="room-card">
+            <span class="gbadge gb-girls">Girls Only</span>
+            <div style="height:18px"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div class="rc-name">Studio 4</div><div class="rc-loc">Bayside Residences, Pasig</div></div>
+              <div style="text-align:right"><div class="rc-price">₱6,500</div><div class="rc-unit">/bed·mo</div></div>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag">Double Bed</span>
+              <span class="rc-tag">Private Room</span>
+              <span class="rc-tag">Dep: 1 month</span>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag" style="color:#fbbf24;border-color:#f59e0b">👴 Senior 20%</span>
+            </div>
+            <div style="font-size:11px;font-weight:bold;color:#f87171;margin:6px 0">● Full</div>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn-outline-green" style="font-size:11px;padding:5px 11px" onclick="openModal('edit')">✏️ Edit</button>
+              <button class="qa-btn" style="padding:5px 11px">👁 Preview</button>
+              <button class="qa-btn" style="padding:5px 11px;margin-left:auto">📋 Waitlist (1)</button>
+            </div>
+          </div>
+ 
+          <div class="room-card">
+            <span class="gbadge gb-mixed">Mixed</span>
+            <div style="height:18px"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div class="rc-name">Dorm A</div><div class="rc-loc">Villa Hermosa, Taguig</div></div>
+              <div style="text-align:right"><div class="rc-price">₱1,800</div><div class="rc-unit">/bed·mo</div></div>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag">Bunk Beds</span>
+              <span class="rc-tag">Dormitory</span>
+              <span class="rc-tag">Dep: 1 month</span>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag" style="color:#a78bfa;border-color:#8b5cf6">👨‍🎓 Student 10%</span>
+            </div>
+            <div style="font-size:11px;font-weight:bold;color:#f87171;margin:6px 0">● Full</div>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn-outline-green" style="font-size:11px;padding:5px 11px" onclick="openModal('edit')">✏️ Edit</button>
+              <button class="qa-btn" style="padding:5px 11px">👁 Preview</button>
+            </div>
+          </div>
+ 
+          <div class="room-card">
+            <span class="gbadge gb-girls">Girls Only</span>
+            <div style="height:18px"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div class="rc-name">Room 1C</div><div class="rc-loc">Green Park, Mandaluyong</div></div>
+              <div style="text-align:right"><div class="rc-price">₱3,200</div><div class="rc-unit">/bed·mo</div></div>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag">Single Beds</span>
+              <span class="rc-tag">Shared Room</span>
+              <span class="rc-tag">Dep: 2 months</span>
+            </div>
+            <div class="rc-tags">
+              <span class="rc-tag" style="color:#a78bfa;border-color:#8b5cf6">👨‍🎓 Student 10%</span>
+              <span class="rc-tag" style="color:#fbbf24;border-color:#f59e0b">👴 Senior 20%</span>
+            </div>
+            <div style="font-size:11px;font-weight:bold;color:#22c55e;margin:6px 0">● 2 beds available</div>
+            <div class="btn-row" style="margin-top:8px">
+              <button class="btn-outline-green" style="font-size:11px;padding:5px 11px" onclick="openModal('edit')">✏️ Edit</button>
+              <button class="qa-btn" style="padding:5px 11px">👁 Preview</button>
+            </div>
+          </div>
+ 
+          <div class="add-card" onclick="openModal()">
+            <div class="ac-icon">➕</div>
+            <div class="ac-lbl">Add New Room Listing</div>
+          </div>
+ 
+        </div>
+      </div>
+ 
+      <!-- BOOKING REQUESTS TABLE -->
+      <div class="cc">
+        <h3>Pending Booking Requests <span style="font-size:12px;color:#f59e0b;font-weight:normal">3 awaiting review</span></h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>Room</th>
+              <th>Lease</th>
+              <th>Discount</th>
+              <th>Monthly Rate</th>
+              <th>Move-in</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="clickable-row">
+              <td><strong style="color:white">Maria Santos</strong><br><small>For herself</small></td>
+              <td>Room 2B — Bed 2</td>
+              <td>12 months</td>
+              <td><span class="badge b-green">Student 10%</span></td>
+              <td style="color:#22c55e;font-weight:bold">₱2,100</td>
+              <td>Jun 1, 2026</td>
+              <td>
+                <div class="btn-row">
+                  <button class="btn-outline-green" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation();showToast('Booking approved!','success')">Approve</button>
+                  <button class="btn-red" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation()">Decline</button>
+                </div>
+              </td>
+            </tr>
+            <tr class="clickable-row">
+              <td><strong style="color:white">Jose Reyes</strong><br><small>For son (occupant)</small></td>
+              <td>Room 2B — Bed 3</td>
+              <td>6 months</td>
+              <td><span class="badge b-gray">No promo</span></td>
+              <td style="color:#22c55e;font-weight:bold">₱2,604</td>
+              <td>Jun 15, 2026</td>
+              <td>
+                <div class="btn-row">
+                  <button class="btn-outline-green" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation();showToast('Booking approved!','success')">Approve</button>
+                  <button class="btn-red" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation()">Decline</button>
+                </div>
+              </td>
+            </tr>
+            <tr class="clickable-row">
+              <td><strong style="color:white">Ana Cruz</strong><br><small>For herself</small></td>
+              <td>Room 1C — Bed 1</td>
+              <td>3 months</td>
+              <td><span class="badge b-yellow">Senior 20%</span></td>
+              <td style="color:#22c55e;font-weight:bold">₱2,560</td>
+              <td>May 25, 2026</td>
+              <td>
+                <div class="btn-row">
+                  <button class="btn-outline-green" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation();showToast('Booking approved!','success')">Approve</button>
+                  <button class="btn-red" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation()">Decline</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<!-- ═══════════════ ADD / EDIT LISTING MODAL ═══════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="modalBox">
+ 
+    <div class="modal-hd">
+      <h3 id="modalTitle">Add Room Listing</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+ 
+    <div class="step-dots" id="stepDots"></div>
+ 
+    <!-- STEP 1 -->
+    <div class="step-panel active" id="step1">
+      <div class="step-lbl">Step 1 — Room Details</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Room / Unit Name</label>
+          <input type="text" placeholder="e.g. Room 2B, Studio 4">
+        </div>
+        <div class="form-group">
+          <label>Property</label>
+          <select>
+            <option>Sunset Apartments, QC</option>
+            <option>Bayside Residences, Pasig</option>
+            <option>Villa Hermosa, Taguig</option>
+            <option>Green Park Studios, Mandaluyong</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Room Type</label>
+        <div class="opt-grid opt-grid-2">
+          <div class="opt-card selected" onclick="selectOpt(this)"><div class="oc-icon">🛏️</div><div class="oc-lbl">Shared Room</div><div class="oc-sub">Multiple tenants</div></div>
+          <div class="opt-card" onclick="selectOpt(this)"><div class="oc-icon">🏠</div><div class="oc-lbl">Private Room</div><div class="oc-sub">Single tenant</div></div>
+          <div class="opt-card" onclick="selectOpt(this)"><div class="oc-icon">🏢</div><div class="oc-lbl">Dormitory</div><div class="oc-sub">Large multi-bed</div></div>
+          <div class="opt-card" onclick="selectOpt(this)"><div class="oc-icon">🏡</div><div class="oc-lbl">Studio Unit</div><div class="oc-sub">Self-contained</div></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Gender Policy</label>
+        <div class="opt-grid opt-grid-3">
+          <div class="opt-card selected" onclick="selectOpt(this)"><div class="oc-icon">👦</div><div class="oc-lbl">Boys Only</div></div>
+          <div class="opt-card" onclick="selectOpt(this)"><div class="oc-icon">👧</div><div class="oc-lbl">Girls Only</div></div>
+          <div class="opt-card" onclick="selectOpt(this)"><div class="oc-icon">👫</div><div class="oc-lbl">Mixed</div></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea placeholder="Describe the room, features, nearby landmarks…"></textarea>
+      </div>
+    </div>
+ 
+    <!-- STEP 2 -->
+    <div class="step-panel" id="step2">
+      <div class="step-lbl">Step 2 — Beds &amp; Pricing</div>
+      <div class="form-group">
+        <label>Beds in this Room</label>
+        <div class="bed-list" id="bedList">
+          <div class="bed-row">
+            <span class="bed-num">1</span>
+            <select><option>Single</option><option>Single Bunk (Bottom)</option><option>Single Bunk (Top)</option><option>Double</option><option>Queen</option><option>Foam / Floor</option></select>
+            <select class="status-sel"><option>Available</option><option>Taken</option></select>
+            <button class="del-bed-btn" onclick="removeBed(this)">🗑</button>
+          </div>
+          <div class="bed-row">
+            <span class="bed-num">2</span>
+            <select><option>Single</option><option selected>Single Bunk (Bottom)</option><option>Single Bunk (Top)</option><option>Double</option><option>Queen</option><option>Foam / Floor</option></select>
+            <select class="status-sel"><option>Available</option><option>Taken</option></select>
+            <button class="del-bed-btn" onclick="removeBed(this)">🗑</button>
+          </div>
+        </div>
+        <button class="add-bed-btn" onclick="addBed()">+ Add Bed</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Base Price (per bed / mo)</label>
+          <input type="number" value="2800" placeholder="e.g. 2800">
+        </div>
+        <div class="form-group">
+          <label>Security Deposit</label>
+          <select><option>1 month</option><option selected>2 months</option><option>3 months</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Lease Discounts to Offer</label>
+        <div class="opt-grid opt-grid-4">
+          <div class="opt-card" onclick="selectOpt(this)"><div class="oc-icon">📅</div><div class="oc-lbl">Monthly</div><div class="oc-sub">No disc.</div></div>
+          <div class="opt-card selected" onclick="selectOpt(this)"><div class="oc-icon">📆</div><div class="oc-lbl">3 Months</div><div class="oc-sub" style="color:#22c55e">3% off</div></div>
+          <div class="opt-card selected" onclick="selectOpt(this)"><div class="oc-icon">📋</div><div class="oc-lbl">6 Months</div><div class="oc-sub" style="color:#22c55e">7% off</div></div>
+          <div class="opt-card selected" onclick="selectOpt(this)"><div class="oc-icon">🏆</div><div class="oc-lbl">1 Year</div><div class="oc-sub" style="color:#22c55e">15% off</div></div>
+        </div>
+      </div>
+      <div class="price-preview">
+        <div class="pp-lbl">Listing price preview</div>
+        <div class="pp-main">₱2,800<span style="font-size:13px;color:#64748b;font-weight:normal">/bed·mo</span></div>
+        <div class="pp-sub">Up to ₱2,380/mo with 1-year lease · promo discounts applied on top</div>
+      </div>
+    </div>
+ 
+    <!-- STEP 3 -->
+    <div class="step-panel" id="step3">
+      <div class="step-lbl">Step 3 — Amenities &amp; Add-ons</div>
+      <div class="form-group">
+        <label>Included Amenities</label>
+        <div class="amenity-grid">
+          <div class="am-item on" onclick="this.classList.toggle('on')">📶 WiFi</div>
+          <div class="am-item on" onclick="this.classList.toggle('on')">❄️ Aircon</div>
+          <div class="am-item" onclick="this.classList.toggle('on')">🚿 Private Bath</div>
+          <div class="am-item on" onclick="this.classList.toggle('on')">🔒 Security</div>
+          <div class="am-item" onclick="this.classList.toggle('on')">🅿️ Parking</div>
+          <div class="am-item on" onclick="this.classList.toggle('on')">📊 Utilities incl.</div>
+          <div class="am-item" onclick="this.classList.toggle('on')">🎮 Common Area</div>
+          <div class="am-item" onclick="this.classList.toggle('on')">🧺 Laundry</div>
+          <div class="am-item" onclick="this.classList.toggle('on')">🏋️ Gym Access</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Optional Add-ons (tenant selects at booking)</label>
+        <div class="addon-list">
+          <div class="addon-row on" onclick="this.classList.toggle('on')">🅿️ <span style="flex:1">Parking Slot</span><span class="addon-price">+₱500/mo</span></div>
+          <div class="addon-row on" onclick="this.classList.toggle('on')">📺 <span style="flex:1">Cable TV</span><span class="addon-price">+₱200/mo</span></div>
+          <div class="addon-row on" onclick="this.classList.toggle('on')">🧹 <span style="flex:1">Weekly Cleaning</span><span class="addon-price">+₱150/mo</span></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>House Rules</label>
+        <textarea>No pets · No smoking · Quiet hours 10PM–6AM · Cooking in common area only</textarea>
+      </div>
+    </div>
+ 
+    <!-- STEP 4 -->
+    <div class="step-panel" id="step4">
+      <div class="step-lbl">Step 4 — Special ID Discounts</div>
+      <div class="alert alert-green">Enable government-mandated or voluntary ID discounts. Tenants present valid IDs on move-in day for verification.</div>
+      <div class="disc-list">
+        <div class="disc-row">
+          <span class="disc-icon">👨‍🎓</span>
+          <div class="disc-info"><div class="disc-name">Student Discount</div><div class="disc-req">Requires: Valid school ID + Certificate of Enrollment</div></div>
+          <span class="disc-pct">10%</span>
+          <div class="toggle on" onclick="this.classList.toggle('on')"><div class="t-knob"></div></div>
+        </div>
+        <div class="disc-row">
+          <span class="disc-icon">👴</span>
+          <div class="disc-info"><div class="disc-name">Senior Citizen Discount</div><div class="disc-req">Requires: OSCA Senior Citizen ID</div></div>
+          <span class="disc-pct">20%</span>
+          <div class="toggle on" onclick="this.classList.toggle('on')"><div class="t-knob"></div></div>
+        </div>
+        <div class="disc-row">
+          <span class="disc-icon">♿</span>
+          <div class="disc-info"><div class="disc-name">PWD Discount</div><div class="disc-req">Requires: PDAO PWD ID</div></div>
+          <span class="disc-pct">20%</span>
+          <div class="toggle on" onclick="this.classList.toggle('on')"><div class="t-knob"></div></div>
+        </div>
+        <div class="disc-row">
+          <span class="disc-icon">👩‍👧</span>
+          <div class="disc-info"><div class="disc-name">Solo Parent Discount</div><div class="disc-req">Requires: DSWD Solo Parent ID</div></div>
+          <span class="disc-pct">10%</span>
+          <div class="toggle" onclick="this.classList.toggle('on')"><div class="t-knob"></div></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Custom Discount Name (optional)</label>
+          <input type="text" placeholder="e.g. Frontliner Discount">
+        </div>
+        <div class="form-group">
+          <label>Discount %</label>
+          <input type="number" placeholder="e.g. 15" min="1" max="50">
+        </div>
+      </div>
+    </div>
+ 
+    <!-- STEP 5 -->
+    <div class="step-panel" id="step5">
+      <div class="step-lbl">Step 5 — Review &amp; Publish</div>
+      <div class="summary-hd">
+        <strong>Room 2B</strong>
+        <span class="summary-dot">·</span>
+        Sunset Apartments, QC
+        <span class="summary-dot">·</span>
+        Boys Only
+        <span class="summary-dot">·</span>
+        <span style="color:#22c55e">Shared Room</span>
+      </div>
+      <div class="policy-box">
+        <div class="pb-title">⚠️ Deposit &amp; Penalty Policy — Room 2B</div>
+        <ul>
+          <li>Security deposit of <strong style="color:white">₱5,600</strong> (2 months) — refundable subject to move-out inspection</li>
+          <li>Property damage deducted from deposit</li>
+          <li>Early termination without 30-day notice: forfeit 1 month deposit</li>
+          <li>Lost key/card: ₱500 replacement fee</li>
+          <li>Move-out cleaning fee ₱500 if unit left unsanitary</li>
+        </ul>
+      </div>
+      <div style="background-color:#3d4a56;border:1px solid #4a5568;border-radius:8px;padding:10px 14px;font-size:12px;color:#94a3b8;margin-bottom:14px;line-height:1.6">
+        <strong style="color:white">House Rules:</strong> No pets · No smoking · Quiet hours 10PM–6AM · Cooking in common area only
+      </div>
+      <div style="background-color:#3d4a56;border-radius:8px;padding:4px 14px;margin-bottom:14px">
+        <div class="drow"><span class="dl">Base rate</span><span class="dv">₱2,800/bed·mo</span></div>
+        <div class="drow"><span class="dl">Beds listed</span><span class="dv">4 beds</span></div>
+        <div class="drow"><span class="dl">Discounts enabled</span><span class="dv" style="color:#22c55e">Student, Senior, PWD</span></div>
+        <div class="drow"><span class="dl">Amenities</span><span class="dv">WiFi, Aircon, Security, Utilities</span></div>
+        <div class="drow"><span class="dl">Listing visibility</span><span class="dv" style="color:#22c55e">Public — visible to tenants</span></div>
+      </div>
+      <div class="confirm-row" id="confirmRow" onclick="toggleConfirm()">
+        <input type="checkbox" id="confirmCheck">
+        <span>I confirm that all listing details are accurate. Tenants will be able to book this room. Approved bookings are binding agreements subject to the stated policies.</span>
+      </div>
+    </div>
+ 
+    <!-- STEP 6 -->
+    <div class="step-panel" id="step6">
+      <div class="success-screen">
+        <div class="success-ico">✓</div>
+        <h3>Listing Published!</h3>
+        <p>Room 2B is now live on HomeSync. Tenants can browse, hold, and book this room. You'll be notified of every booking request.</p>
+        <div style="background-color:#3d4a56;border-radius:8px;padding:4px 14px;width:100%">
+          <div class="drow"><span class="dl">Room</span><span class="dv">Room 2B — Sunset Apartments, QC</span></div>
+          <div class="drow"><span class="dl">Type</span><span class="dv">Shared Room · Boys Only</span></div>
+          <div class="drow"><span class="dl">Beds</span><span class="dv">4 beds listed</span></div>
+          <div class="drow"><span class="dl">Price</span><span class="dv" style="color:#22c55e">₱2,800/bed·mo</span></div>
+          <div class="drow"><span class="dl">Status</span><span class="dv" style="color:#22c55e">● Live &amp; Accepting Bookings</span></div>
+        </div>
+        <button class="btn-green" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+ 
+    <!-- Modal footer -->
+    <div class="modal-footer" id="modalFooter">
+      <button id="btnBack" onclick="prevStep()" style="display:none;background:transparent;color:#94a3b8;border:1px solid #4a5568;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:Arial,sans-serif">← Back</button>
+      <button id="btnNext" onclick="nextStep()" class="btn-outline-green" style="font-size:13px;padding:8px 20px">Next →</button>
+    </div>
+ 
+  </div>
+</div>
+ 
+<div id="toast-wrap"></div>
+ 
+<script>
+  const TOTAL = 6;
+  let cur = 1;
+  let bedCount = 2;
+ 
+  function renderDots() {
+    const c = document.getElementById('stepDots');
+    c.innerHTML = '';
+    for (let i = 1; i < TOTAL; i++) {
+      const d = document.createElement('div');
+      d.className = 'step-dot' + (i < cur ? ' done' : i === cur ? ' active' : '');
+      c.appendChild(d);
+    }
+  }
+ 
+  function showStep(n) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+    document.getElementById('btnBack').style.display = (n > 1 && n < TOTAL) ? 'inline-block' : 'none';
+    document.getElementById('modalFooter').style.display = n === TOTAL ? 'none' : 'flex';
+    renderDots();
+  }
+ 
+  function nextStep() {
+    if (cur === 5 && !document.getElementById('confirmCheck').checked) {
+      const row = document.getElementById('confirmRow');
+      row.style.borderColor = '#f87171';
+      setTimeout(() => { row.style.borderColor = ''; }, 1500);
+      return;
+    }
+    if (cur < TOTAL) { cur++; showStep(cur); }
+  }
+ 
+  function prevStep() {
+    if (cur > 1) { cur--; showStep(cur); }
+  }
+ 
+  function openModal(mode) {
+    cur = 1;
+    showStep(1);
+    document.getElementById('confirmCheck').checked = false;
+    document.getElementById('confirmRow').classList.remove('checked');
+    document.getElementById('modalTitle').textContent = mode === 'edit' ? 'Edit Listing: Room 2B' : 'Add Room Listing';
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+ 
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+ 
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+ 
+  function selectOpt(el) {
+    el.closest('.opt-grid').querySelectorAll('.opt-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+ 
+  function toggleConfirm() {
+    const cb = document.getElementById('confirmCheck');
+    cb.checked = !cb.checked;
+    document.getElementById('confirmRow').classList.toggle('checked', cb.checked);
+  }
+ 
+  function addBed() {
+    bedCount++;
+    const list = document.getElementById('bedList');
+    const row = document.createElement('div');
+    row.className = 'bed-row';
+    row.innerHTML = `<span class="bed-num">${bedCount}</span>
+      <select><option>Single</option><option>Single Bunk (Bottom)</option><option>Single Bunk (Top)</option><option>Double</option><option>Queen</option><option>Foam / Floor</option></select>
+      <select class="status-sel"><option>Available</option><option>Taken</option></select>
+      <button class="del-bed-btn" onclick="removeBed(this)">🗑</button>`;
+    list.appendChild(row);
+  }
+ 
+  function removeBed(btn) {
+    btn.closest('.bed-row').remove();
+    document.querySelectorAll('#bedList .bed-row').forEach((r, i) => r.querySelector('.bed-num').textContent = i + 1);
+    bedCount = document.querySelectorAll('#bedList .bed-row').length;
+  }
+ 
+  function showToast(msg, type) {
+    const wrap = document.getElementById('toast-wrap');
+    const t = document.createElement('div');
+    t.className = 'toast ' + (type || '');
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+ 
+  renderDots();
+</script>
+</body>
+</html>
